@@ -70,7 +70,7 @@ async function testSupabaseConnection() {
 testSupabaseConnection();
 
 // ================= END SUPABASE CONNECTION =================
-// ================= SAVE CUSTOMER ORDER =================
+// ============== SAVE CUSTOMER ORDER ==============
 
 const orderForm = document.getElementById('orderForm');
 
@@ -84,11 +84,11 @@ if (orderForm) {
     const phone = document.getElementById('phone').value.trim();
     const address = document.getElementById('address').value.trim();
     const pincode = document.getElementById('pincode').value.trim();
-    const quantity = document.getElementById('quantity').value;
+    const quantity = Number(document.getElementById('quantity').value);
     const paymentMethod = document.getElementById('payment').value;
 
     if (orderMessage) {
-      orderMessage.textContent = 'Order submit ho raha hai...';
+      orderMessage.textContent = '⏳ Order save ho raha hai...';
     }
 
     try {
@@ -110,34 +110,39 @@ if (orderForm) {
             quantity: quantity,
             payment_method: paymentMethod,
             product: 'ValuVeda Karela Jamun Powder 200g',
+            payment_status: paymentMethod === 'COD' ? 'pending' : 'pending',
             order_status: 'pending'
           })
         }
       );
 
+      const resultText = await response.text();
+
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
+        console.error('Supabase order error:', resultText);
+        throw new Error(resultText);
       }
 
-      const savedOrder = await response.json();
+      const savedOrder = JSON.parse(resultText);
 
-      console.log('Order saved:', savedOrder);
+      console.log('Order saved successfully:', savedOrder);
 
       if (orderMessage) {
         orderMessage.textContent =
-          '✅ Order successfully place ho gaya!';
+          '✅ Order successfully place ho gaya! Aapka order receive ho gaya hai.';
       }
 
       orderForm.reset();
 
     } catch (error) {
-  console.error('Order save error:', error);
+      console.error('Order save error:', error);
 
-  if (orderMessage) {
-    orderMessage.textContent =
-      '❌ Order save error: ' + (error.message || error);
-  }
+      if (orderMessage) {
+        orderMessage.textContent =
+          '❌ Order save nahi hua. Please dobara try karein.';
+      }
+    }
+  });
 }
     }
   });
