@@ -1,60 +1,166 @@
+// ================= BASIC SETTINGS =================
 
-const WHATSAPP='918796257205';
-const PHONE='918796257205';
-const ingredients=[{"name": "Jamun", "botanical": "Syzygium cumini", "role": "Traditionally used in Ayurveda as part of formulations focused on metabolic and digestive wellness."}, {"name": "Neem", "botanical": "Azadirachta indica", "role": "Traditionally valued in Ayurveda for its bitter profile and use in wellness formulations."}, {"name": "Tulsi", "botanical": "Ocimum tenuiflorum", "role": "An Ayurvedic herb traditionally used for everyday wellness and respiratory support."}, {"name": "Ashwagandha", "botanical": "Withania somnifera", "role": "Traditionally used in Ayurveda as a rejuvenating herb and for general vitality."}, {"name": "Bael", "botanical": "Aegle marmelos", "role": "Traditionally used for digestive wellness and as a botanical ingredient in Ayurvedic preparations."}, {"name": "Vijaysar", "botanical": "Pterocarpus marsupium", "role": "A traditional Ayurvedic botanical often included in formulations for metabolic wellness."}, {"name": "Shatavari", "botanical": "Asparagus racemosus", "role": "Traditionally used as a nourishing Ayurvedic herb for general wellness."}, {"name": "Methi", "botanical": "Trigonella foenum-graecum", "role": "Traditionally used in food and Ayurveda for digestive and metabolic wellness."}, {"name": "Saunf", "botanical": "Foeniculum vulgare", "role": "Traditionally used to support comfortable digestion and as a warming aromatic herb."}, {"name": "Gudmar", "botanical": "Gymnema sylvestre", "role": "A well-known Ayurvedic botanical traditionally associated with metabolic and sugar-management wellness."}, {"name": "Harsingar", "botanical": "Nyctanthes arbor-tristis", "role": "Traditionally used in Ayurveda as a botanical ingredient for general wellness."}, {"name": "Karela", "botanical": "Momordica charantia L.", "role": "A bitter botanical traditionally used in Ayurvedic wellness formulations."}, {"name": "Manjistha", "botanical": "Rubia cordifolia", "role": "Traditionally valued in Ayurveda as a cleansing and skin-supportive botanical."}, {"name": "Chirata", "botanical": "Swertia", "role": "A bitter Ayurvedic botanical traditionally used in digestive and general wellness preparations."}, {"name": "Dalchini", "botanical": "Cinnamomum verum", "role": "Traditionally used as an aromatic spice and Ayurvedic botanical for digestive wellness."}];
+const WHATSAPP = '9181796257205';
+const PHONE = '9181796257205';
 
-document.querySelectorAll('[data-whatsapp]').forEach(a=>{
-  const msg=encodeURIComponent('Hello ValuVeda Wellness, I want to know more about Karela Jamun Powder.');
-  a.href=`https://wa.me/${WHATSAPP}?text=${msg}`;
-});
-document.querySelectorAll('[data-call]').forEach(a=>a.href=`tel:+${PHONE}`);
+const ingredients = [
+  {
+    name: "Jamun",
+    botanical: "Syzygium cumini",
+    role: "Traditionally used in Ayurveda as part of general wellness practices."
+  },
+  {
+    name: "Neem",
+    botanical: "Azadirachta indica",
+    role: "Traditionally used in Ayurveda for general wellness."
+  },
+  {
+    name: "Tulsi",
+    botanical: "Ocimum tenuiflorum",
+    role: "Traditionally used in Ayurveda as a wellness herb."
+  },
+  {
+    name: "Ashwagandha",
+    botanical: "Withania somnifera",
+    role: "Traditionally used in Ayurveda for general wellness."
+  }
+];
 
-const grid=document.getElementById('herbGrid');
-if(grid){
-  grid.innerHTML=ingredients.map((x,i)=>`
-    <button class="herb-card" data-herb="${i}">
-      <b>${x.name}</b><small>${x.botanical}</small><span>${x.role}</span>
-    </button>`).join('');
-}
-const modal=document.getElementById('herbModal');
-const close=()=>modal?.classList.remove('open');
-document.querySelectorAll('[data-herb]').forEach(btn=>btn.addEventListener('click',()=>{
-  const x=ingredients[Number(btn.dataset.herb)];
-  document.getElementById('modalTitle').textContent=x.name;
-  document.getElementById('modalBotanical').textContent=x.botanical;
-  document.getElementById('modalRole').textContent=x.role;
-  document.getElementById('modalUse').textContent='This is a traditional/general-wellness description, not a medical diagnosis or treatment claim.';
-  modal.classList.add('open');
-}));if (close) {
-  close.addEventListener('click', () => {
-    modal?.classList.remove('open');
+
+// ================= WHATSAPP BUTTON =================
+
+document.querySelectorAll('[data-whatsapp]').forEach((btn) => {
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const msg =
+      'Hello ValuVeda Wellness, I want to know more about Karela Jamun Powder.';
+
+    window.location.href =
+      `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   });
+});
+
+
+// ================= CALL BUTTON =================
+
+document.querySelectorAll('[data-call]').forEach((btn) => {
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    window.location.href = `tel:+${PHONE}`;
+  });
+});
+
+
+// ================= INGREDIENTS / 3 DOT MODAL =================
+
+const grid = document.getElementById('herbGrid');
+
+if (grid) {
+  grid.innerHTML = ingredients.map((item, index) => `
+    <button class="herb-card" data-herb="${index}">
+      <b>${item.name}</b>
+      <small>${item.botanical}</small>
+      <span>${item.role}</span>
+    </button>
+  `).join('');
 }
 
+
+const modal = document.getElementById('herbModal');
+
+function closeHerbModal() {
+  if (modal) {
+    modal.classList.remove('open');
+  }
+}
+
+
+// Close button
+document.querySelectorAll('.close').forEach((btn) => {
+  btn.addEventListener('click', closeHerbModal);
+});
+
+
+// Ingredient buttons
+document.querySelectorAll('[data-herb]').forEach((btn) => {
+  btn.addEventListener('click', function () {
+
+    const index = Number(this.dataset.herb);
+    const item = ingredients[index];
+
+    if (!item) return;
+
+    const name = document.getElementById('modalBotanical');
+    const botanical = document.getElementById('modalRole');
+    const use = document.getElementById('modalUse');
+
+    if (name) name.textContent = item.name;
+    if (botanical) botanical.textContent = item.botanical;
+
+    if (use) {
+      use.textContent =
+        'This is a traditional/general-wellness description, not a medical diagnosis or treatment claim.';
+    }
+
+    if (modal) {
+      modal.classList.add('open');
+    }
+  });
+});
+
+
+// Close modal when clicking outside
 if (modal) {
-  modal.addEventListener('click', (e) => {
+  modal.addEventListener('click', function (e) {
     if (e.target === modal) {
-      modal.classList.remove('open');
+      closeHerbModal();
     }
   });
 }
 
-const menu=document.querySelector('.menu');
-menu?.addEventListener('click',()=>document.querySelector('.nav')?.classList.toggle('mobile-open'));
+
+// ================= MOBILE MENU =================
+
+const menuButton = document.querySelector('.menu');
+const nav = document.querySelector('nav');
+
+if (menuButton && nav) {
+  menuButton.addEventListener('click', function (e) {
+    e.preventDefault();
+    nav.classList.toggle('mobile-open');
+  });
+}
+
+
+// ================= ADD TO CART =================
+
 const addToCart = document.getElementById('addToCart');
 
 if (addToCart) {
-  addToCart.addEventListener('click', () => {
-    window.location.href = 'index.html#order';
+  addToCart.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    window.location.href = 'index.html#orderForm';
   });
 }
-// ================= SUPABASE CONNECTION =================
 
-const SUPABASE_URL = 'https://szxszrxcsavthipevdqu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_UqD2KS6801BPwMdvk6Iagw_Wn9cp7fz';
+
+// ================= SUPABASE =================
+
+// ⚠️ IN DONO LINES ME APNI EXISTING VALUES HI RAKHNA
+
+const SUPABASE_URL = 'YOUR_EXISTING_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_EXISTING_SUPABASE_KEY';
+
+
+// ================= SUPABASE CONNECTION TEST =================
 
 async function testSupabaseConnection() {
+
   try {
+
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/Orders?select=id&limit=1`,
       {
@@ -69,89 +175,153 @@ async function testSupabaseConnection() {
     if (response.ok) {
       console.log('Supabase connected successfully.');
     } else {
-      console.error('Supabase connection error:', await response.text());
+      console.error(
+        'Supabase connection error:',
+        await response.text()
+      );
     }
+
   } catch (error) {
+
     console.error('Supabase error:', error);
+
   }
 }
 
 testSupabaseConnection();
 
-// ================= END SUPABASE CONNECTION =================
-// ============== SAVE CUSTOMER ORDER ==============
+
+// ================= SAVE CUSTOMER ORDER =================
 
 const orderForm = document.getElementById('orderForm');
 
 if (orderForm) {
+
   orderForm.addEventListener('submit', async function (e) {
+
     e.preventDefault();
 
-    const orderMessage = document.getElementById('orderMessage');
+    const orderMessage =
+      document.getElementById('orderMessage');
 
-    const customerName = document.getElementById('customerName').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const address = document.getElementById('address').value.trim();
-    const pincode = document.getElementById('pincode').value.trim();
-    const quantity = Number(document.getElementById('quantity').value);
-    const paymentMethod = document.getElementById('payment').value;
+    const customerName =
+      document.getElementById('customerName')?.value.trim() || '';
+
+    const phone =
+      document.getElementById('phone')?.value.trim() || '';
+
+    const address =
+      document.getElementById('address')?.value.trim() || '';
+
+    const city =
+      document.getElementById('city')?.value.trim() || '';
+
+    const state =
+      document.getElementById('state')?.value.trim() || '';
+
+    const pincode =
+      document.getElementById('pincode')?.value.trim() || '';
+
+    const quantity =
+      Number(document.getElementById('quantity')?.value || 1);
+
+    const paymentMethod =
+      document.getElementById('payment')?.value || 'COD';
+
 
     if (orderMessage) {
-      orderMessage.textContent = '⏳ Order save ho raha hai...';
+      orderMessage.textContent =
+        '⏳ Order save ho raha hai...';
     }
+
 
     try {
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/Orders`,
-    {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        customer_name: customerName,
-        phone: phone,
-        address: address,
-        pincode: pincode,
-        quantity: quantity,
-        payment_method: paymentMethod,
-        product: 'ValuVeda Karela Jamun Powder 200g',
-        payment_status: 'pending',
-        order_status: 'pending'
-      })
-    }
-  );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/Orders`,
+        {
+          method: 'POST',
 
-  console.log('Order saved successfully');
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
 
-  if (orderMessage) {
-    orderMessage.textContent =
-      '✅ Order successfully place ho gaya! Aapka order receive ho gaya hai.';
-  }
+          body: JSON.stringify({
 
-  orderForm.reset();
+            customer_name: customerName,
+            phone: phone,
+            address: address,
+            city: city,
+            state: state,
+            pincode: pincode,
+            quantity: quantity,
 
-} catch (error) {
-  console.error('Order save error:', error);
+            payment_method: paymentMethod,
 
-  if (orderMessage) {
-    orderMessage.textContent =
-      '❌ Order save nahi hua: ' + (error.message || error);
-  }
-}
+            product:
+              'ValuVeda Karela Jamun Powder 200g',
+
+            payment_status:
+              paymentMethod === 'COD'
+                ? 'pending'
+                : 'pending',
+
+            order_status:
+              'pending'
+          })
+        }
+      );
+
+
+      const resultText = await response.text();
+
+
+      if (!response.ok) {
+
+        console.error(
+          'Supabase order error:',
+          resultText
+        );
+
+        throw new Error(resultText);
+
+      }
+
+
+      console.log('Order saved successfully:', resultText);
+
 
       if (orderMessage) {
+
+        orderMessage.textContent =
+          '✅ Order successfully place ho gaya! Aapka order receive ho gaya hai.';
+
+      }
+
+
+      orderForm.reset();
+
+
+    } catch (error) {
+
+      console.error(
+        'Order save error:',
+        error
+      );
+
+
+      if (orderMessage) {
+
         orderMessage.textContent =
           '❌ Order save nahi hua. Please dobara try karein.';
+
       }
+
     }
-      
+
   });
+
 }
