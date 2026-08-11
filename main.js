@@ -142,8 +142,13 @@ if (orderForm) {
           '❌ Order save nahi hua. Please dobara try karein.';
       }
     }
-  });
-}
+      } catch (error) {
+      console.error('Order save error:', error);
+
+      if (orderMessage) {
+        orderMessage.textContent =
+          '❌ Order save nahi hua. Please dobara try karein.';
+      }
     }
   });
 }
