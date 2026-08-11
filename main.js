@@ -32,3 +32,35 @@ document.getElementById('year').textContent=new Date().getFullYear();
 
 const menu=document.querySelector('.menu');
 menu?.addEventListener('click',()=>document.querySelector('.nav')?.classList.toggle('mobile-open'));
+
+// ================= SUPABASE CONNECTION =================
+
+const SUPABASE_URL = 'https://szxszrxcsavthipevdqu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_UqD2KS6801BPwMdvk6Iagw_Wn9cp7fz';
+
+async function testSupabaseConnection() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/Orders?select=id&limit=1`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    if (response.ok) {
+      console.log('Supabase connected successfully.');
+    } else {
+      console.error('Supabase connection error:', await response.text());
+    }
+  } catch (error) {
+    console.error('Supabase error:', error);
+  }
+}
+
+testSupabaseConnection();
+
+// ================= END SUPABASE CONNECTION =================
