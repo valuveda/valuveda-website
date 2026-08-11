@@ -25,10 +25,19 @@ document.querySelectorAll('[data-herb]').forEach(btn=>btn.addEventListener('clic
   document.getElementById('modalRole').textContent=x.role;
   document.getElementById('modalUse').textContent='This is a traditional/general-wellness description, not a medical diagnosis or treatment claim.';
   modal.classList.add('open');
-}));
-document.querySelector('.close')?.addEventListener('click',close);
-modal?.addEventListener('click',e=>{if(e.target===modal)close();});
-document.getElementById('year').textContent=new Date().getFullYear();
+}));if (close) {
+  close.addEventListener('click', () => {
+    modal?.classList.remove('open');
+  });
+}
+
+if (modal) {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('open');
+    }
+  });
+}
 
 const menu=document.querySelector('.menu');
 menu?.addEventListener('click',()=>document.querySelector('.nav')?.classList.toggle('mobile-open'));
