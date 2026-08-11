@@ -89,4 +89,64 @@ h3{margin:0 0 7px}.lead{font-size:19px;color:var(--muted);max-width:650px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;padding:20px;z-index:50}.modal.open{display:grid}.modal-box{max-width:620px;background:#fff;border-radius:22px;padding:32px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.3)}.close{position:absolute;right:16px;top:12px;border:0;background:none;font-size:30px;cursor:pointer}.botanical{color:var(--green);font-style:italic}
 @media(max-width:900px){.nav{display:none}.menu{display:block}.header-actions{display:none}.hero-grid,.two-col,.product-layout,.use-grid{grid-template-columns:1fr}.trust{grid-template-columns:1fr 1fr}.herb-grid{grid-template-columns:repeat(2,1fr)}.feature-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr}.product-stage{min-height:390px}.gallery{grid-template-columns:1fr}.gallery-main img{height:430px}.contact-strip{grid-template-columns:1fr}}
 @media(max-width:520px){.header-inner{height:66px}.logo{width:112px}.hero{padding:50px 0}.section{padding:65px 0}.hero-actions .btn{width:100%}.trust>div{padding:18px 10px}.herb-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.clean-product{grid-template-columns:1fr}.gallery-side{grid-template-columns:1fr 1fr}.gallery-side img{height:180px}.gallery-main img{height:330px}}
+.price-box{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:18px 0;
+  flex-wrap:wrap;
+}
+
+.mrp{
+  font-size:18px;
+  color:#777;
+  text-decoration:line-through;
+}
+
+.sale-price{
+  font-size:32px;
+  font-weight:800;
+  color:#176b45;
+}
+
+.buy-box{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin:20px 0;
+}
+
+.buy-box .btn{
+  cursor:pointer;
+}
+
+.buy-box .btn-lg{
+  padding:14px 24px;
+  font-size:16px;
+}
+
+#addToCart{
+  border:0;
+  cursor:pointer;
+}
+
+@media (max-width:520px){
+  .price-box{
+    margin:14px 0;
+  }
+
+  .sale-price{
+    font-size:28px;
+  }
+
+  .buy-box{
+    width:100%;
+  }
+
+  .buy-box .btn{
+    flex:1;
+    text-align:center;
+  }
+}
 .rating{display:flex;align-items:center;gap:8px;margin:12px 0 16px;font-size:14px}.rating .stars{color:#e5a800;font-size:22px;letter-spacing:2px}.rating-label{opacity:.7}
