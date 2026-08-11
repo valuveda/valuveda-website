@@ -103,16 +103,13 @@ if (orderForm) {
             'Prefer': 'return=representation'
           },
           body: JSON.stringify({
-            customer_name: customerName,
-            phone: phone,
-            address: address,
-            pincode: pincode,
-            quantity: quantity,
-            payment_method: paymentMethod,
-            product: 'ValuVeda Karela Jamun Powder 200g',
-            payment_status: paymentMethod === 'COD' ? 'pending' : 'pending',
-            order_status: 'pending'
-          })
+  customer_name: customerName,
+  phone: phone,
+  address: address,
+  pincode: pincode,
+  payment_status: 'pending',
+  order_status: 'pending'
+})
         }
       );
 
