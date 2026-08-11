@@ -45,6 +45,66 @@
 <section class="section section-soft"><div class="container"><div class="section-head"><span class="eyebrow">BRAND VIDEO</span><h2>See the product story</h2></div><video class="video" controls playsinline preload="metadata"><source src="assets/brand-video.mp4" type="video/mp4">Your browser does not support video.</video></div></section>
 
 <section class="cta"><div class="container cta-grid"><div><span class="eyebrow" style="color:#d5f0df">READY TO ORDER?</span><h2>Talk to us directly.</h2><p>WhatsApp or call us for product and order assistance.</p></div><div class="hero-actions"><a class="btn btn-outline btn-lg" data-whatsapp>WhatsApp</a><a class="btn btn-outline btn-lg" data-call>Call</a><a class="btn btn-light btn-lg" href="product.html">Product Details</a></div></div></section>
+<section class="section section-soft" id="order">
+<div class="container">
+<div class="section-head">
+<span class="eyebrow">ORDER NOW</span>
+<h2>Place Your Order</h2>
+<p>Apni details fill karke Karela Jamun Powder order karein.</p>
+</div>
+
+<div class="order-box">
+<form id="orderForm">
+
+<div class="form-group">
+<label for="customerName">Full Name</label>
+<input type="text" id="customerName" name="customer_name" placeholder="Apna naam likhein" required>
+</div>
+
+<div class="form-group">
+<label for="phone">Mobile Number</label>
+<input type="tel" id="phone" name="phone" placeholder="10 digit mobile number" maxlength="10" required>
+</div>
+
+<div class="form-group">
+<label for="address">Full Address</label>
+<textarea id="address" name="address" placeholder="House no., Street, Area..." rows="3" required></textarea>
+</div>
+
+<div class="form-group">
+<label for="pincode">PIN Code</label>
+<input type="text" id="pincode" name="pincode" placeholder="6 digit PIN code" maxlength="6" required>
+</div>
+
+<div class="form-group">
+<label for="quantity">Quantity</label>
+<select id="quantity" name="quantity" required>
+<option value="1">1 Pack – 200g</option>
+<option value="2">2 Packs – 400g</option>
+<option value="3">3 Packs – 600g</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="payment">Payment Method</label>
+<select id="payment" name="payment_method" required>
+<option value="COD">Cash on Delivery</option>
+</select>
+</div>
+
+<input type="hidden" name="product" value="ValuVeda Karela Jamun Powder 200g">
+<input type="hidden" name="order_status" value="pending">
+
+<button type="submit" class="btn btn-green btn-lg">
+Place Order
+</button>
+
+<p id="orderMessage" style="margin-top:15px;"></p>
+
+</form>
+</div>
+</div>
+</section>
 </main>
 <div class="modal" id="herbModal" aria-hidden="true"><div class="modal-box"><button class="close" aria-label="Close">×</button><span class="eyebrow">INGREDIENT</span><h2 id="modalTitle"></h2><p class="botanical" id="modalBotanical"></p><h3>Traditional / general-wellness role</h3><p id="modalRole"></p><h3>Important</h3><p id="modalUse"></p></div></div>
 
