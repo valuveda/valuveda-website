@@ -92,47 +92,51 @@ if (orderForm) {
     }
 
     try {
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/Orders`,
-        {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify({
-  customer_name: customerName,
-  phone: phone,
-  address: address,
-  pincode: pincode,
-  payment_status: 'pending',
-  order_status: 'pending'
-})
-        }
-      );
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/Orders`,
+    {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        customer_name: customerName,
+        phone: phone,
+        address: address,
+        pincode: pincode,
+        quantity: quantity,
+        payment_method: paymentMethod,
+        product: 'ValuVeda Karela Jamun Powder 200g',
+        payment_status: 'pending',
+        order_status: 'pending'
+      })
+    }
+  );
 
-      const resultText = await response.text();
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
 
-      if (!response.ok) {
-        console.error('Supabase order error:', resultText);
-        throw new Error(resultText);
-      }
+  console.log('Order saved successfully');
 
-      const savedOrder = JSON.parse(resultText);
+  if (orderMessage) {
+    orderMessage.textContent =
+      '✅ Order successfully place ho gaya! Aapka order receive ho gaya hai.';
+  }
 
-      console.log('Order saved successfully:', savedOrder);
+  orderForm.reset();
 
-      if (orderMessage) {
-        orderMessage.textContent =
-          '✅ Order successfully place ho gaya! Aapka order receive ho gaya hai.';
-      }
+} catch (error) {
+  console.error('Order save error:', error);
 
-      orderForm.reset();
-
-    } catch (error) {
-      console.error('Order save error:', error);
+  if (orderMessage) {
+    orderMessage.textContent =
+      '❌ Order save nahi hua: ' + (error.message || error);
+  }
+}
 
       if (orderMessage) {
         orderMessage.textContent =
