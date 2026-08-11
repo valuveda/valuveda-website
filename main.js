@@ -1,7 +1,7 @@
 // ================= BASIC SETTINGS =================
 
-const WHATSAPP = '9181796257205';
-const PHONE = '9181796257205';
+const WHATSAPP = '918796257205';
+const PHONE = '918796257205';
 
 const ingredients = [
   {
