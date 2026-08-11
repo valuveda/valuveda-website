@@ -32,7 +32,13 @@ document.getElementById('year').textContent=new Date().getFullYear();
 
 const menu=document.querySelector('.menu');
 menu?.addEventListener('click',()=>document.querySelector('.nav')?.classList.toggle('mobile-open'));
+const addToCart = document.getElementById('addToCart');
 
+if (addToCart) {
+  addToCart.addEventListener('click', () => {
+    window.location.href = 'index.html#order';
+  });
+}
 // ================= SUPABASE CONNECTION =================
 
 const SUPABASE_URL = 'https://szxszrxcsavthipevdqu.supabase.co';
