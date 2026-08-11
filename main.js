@@ -132,12 +132,13 @@ if (orderForm) {
       orderForm.reset();
 
     } catch (error) {
-      console.error('Order save error:', error);
+  console.error('Order save error:', error);
 
-      if (orderMessage) {
-        orderMessage.textContent =
-          '❌ Order save nahi hua. Please dobara try karein.';
-      }
+  if (orderMessage) {
+    orderMessage.textContent =
+      '❌ Order save error: ' + (error.message || error);
+  }
+}
     }
   });
 }
