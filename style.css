@@ -150,3 +150,31 @@ h3{margin:0 0 7px}.lead{font-size:19px;color:var(--muted);max-width:650px}
   }
 }
 .rating{display:flex;align-items:center;gap:8px;margin:12px 0 16px;font-size:14px}.rating .stars{color:#e5a800;font-size:22px;letter-spacing:2px}.rating-label{opacity:.7}
+/* FIX: mobile buttons/touch */
+a,
+button,
+.btn,
+.menu,
+[data-whatsapp],
+[data-call],
+#addToCart {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  cursor: pointer !important;
+}
+
+/* Hidden modal must never block the page */
+.modal:not(.open) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Keep clickable areas above normal content */
+.site-header,
+.header-actions,
+.menu,
+.hero-actions,
+.buy-box {
+  position: relative;
+  z-index: 1000;
+}
