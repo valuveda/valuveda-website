@@ -114,99 +114,96 @@ h3{margin:0 0 7px}.lead{font-size:19px;color:var(--muted);max-width:650px}
 }
 /* MOBILE PRODUCT PAGE FINAL FIX */
 @media (max-width: 520px) {
+/* MOBILE PRODUCT PAGE */
+@media (max-width:520px){
 
-  .product-layout {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0 !important;
+  .product-layout{
+    display:block !important;
   }
 
-  .gallery {
-    width: 100% !important;
-    margin: 0 !important;
+  .gallery{
+    width:100% !important;
+    margin:0 !important;
   }
 
-  .product-info {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 22px 26px 30px !important;
-    margin: 0 !important;
+  .gallery-main{
+    width:100% !important;
+    height:auto !important;
   }
 
-  .product-info h1 {
-    font-size: 46px !important;
-    line-height: 1.05 !important;
-    margin: 8px 0 16px !important;
+  .gallery-main img{
+    width:100% !important;
+    height:auto !important;
+    object-fit:contain !important;
   }
 
-  .product-info > p {
-    font-size: 20px !important;
-    line-height: 1.55 !important;
-    margin: 0 0 20px !important;
+  .product-info{
+    width:100% !important;
+    max-width:none !important;
+    padding:24px 26px 30px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
   }
 
-  /* PRICE - same line */
-  .price-box {
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-    gap: 7px !important;
-    white-space: nowrap !important;
-    margin: 8px 0 22px !important;
+  .product-info h1{
+    margin:0 0 14px !important;
+    font-size:42px !important;
+    line-height:1.05 !important;
   }
 
-  .price-box .mrp {
-    font-size: 17px !important;
+  .product-info > p{
+    margin:0 0 18px !important;
+    font-size:19px !important;
+    line-height:1.5 !important;
   }
 
-  .price-box .sale-price {
-    font-size: 22px !important;
+  .price-box{
+    display:flex !important;
+    align-items:center !important;
+    gap:6px !important;
+    flex-wrap:nowrap !important;
+    white-space:nowrap !important;
+    margin:10px 0 22px !important;
   }
 
-  .price-box span:last-child {
-    font-size: 14px !important;
-    white-space: nowrap !important;
+  .price-box .mrp{
+    font-size:17px !important;
   }
 
-  /* BULLET POINTS */
-  .product-info ul {
-    margin: 0 0 22px !important;
-    padding-left: 28px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+  .price-box .sale-price{
+    font-size:21px !important;
   }
 
-  .product-info ul li {
-    font-size: 18px !important;
-    line-height: 1.5 !important;
-    margin: 0 0 15px !important;
-    padding: 0 !important;
+  .price-box span{
+    white-space:nowrap !important;
   }
 
-  /* WHATSAPP + CALL */
-  .buy-box {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-    width: 100% !important;
-    margin: 20px 0 !important;
+  .product-info ul{
+    margin:0 0 22px !important;
+    padding-left:27px !important;
   }
 
-  .buy-box .btn {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    text-align: center !important;
+  .product-info li{
+    font-size:18px !important;
+    line-height:1.5 !important;
+    margin-bottom:14px !important;
   }
 
-  /* AMAZON */
-  .product-info .amazon {
-    width: 100% !important;
-    margin: 18px 0 0 !important;
-    font-size: 17px !important;
-    line-height: 1.5 !important;
+  .buy-box{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    width:100% !important;
+    margin:20px 0 !important;
   }
-}
+
+  .buy-box .btn{
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    margin:0 !important;
+  }
+
+  .product-info .amazon{
+    margin-top:18px !important;
+    width:
