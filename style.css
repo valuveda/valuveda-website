@@ -48,3 +48,24 @@ h3{margin:0 0 7px}.lead{font-size:19px;color:var(--muted);max-width:650px}
 @media(max-width:900px){.nav{display:none}.menu{display:block}.header-actions{display:none}.hero-grid,.two-col,.product-layout,.use-grid{grid-template-columns:1fr}.trust{grid-template-columns:1fr 1fr}.herb-grid{grid-template-columns:repeat(2,1fr)}.feature-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr}.product-stage{min-height:390px}.gallery{grid-template-columns:1fr}.gallery-main img{height:430px}.contact-strip{grid-template-columns:1fr}}
 @media(max-width:520px){.header-inner{height:66px}.logo{width:112px}.hero{padding:50px 0}.section{padding:65px 0}.hero-actions .btn{width:100%}.trust>div{padding:18px 10px}.herb-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.clean-product{grid-template-columns:1fr}.gallery-side{grid-template-columns:1fr 1fr}.gallery-side img{height:180px}.gallery-main img{height:330px}}
 .rating{display:flex;align-items:center;gap:8px;margin:12px 0 16px;font-size:14px}.rating .stars{color:#e5a800;font-size:22px;letter-spacing:2px}.rating-label{opacity:.7}
+@media (max-width: 900px){
+  .nav.mobile-open{
+    display:flex;
+    position:absolute;
+    top:76px;
+    left:0;
+    right:0;
+    background:#fff;
+    flex-direction:column;
+    gap:0;
+    padding:15px 20px;
+    border-top:1px solid var(--line);
+    box-shadow:0 15px 30px rgba(0,0,0,.12);
+    z-index:999;
+  }
+
+  .nav.mobile-open a{
+    padding:13px 5px;
+    border-bottom:1px solid var(--line);
+  }
+}
