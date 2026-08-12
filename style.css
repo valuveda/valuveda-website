@@ -72,138 +72,100 @@ h3{margin:0 0 7px}.lead{font-size:19px;color:var(--muted);max-width:650px}
 @media (max-width: 520px) {
 
   .product-layout {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
   }
 
   .gallery {
-    width: 100%;
+    width: 100% !important;
+    margin: 0 !important;
   }
 
   .gallery-main {
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
   }
 
   .gallery-main img {
-    width: 100%;
-    height: 360px;
-    object-fit: contain;
-  }
-
-  .product-stage {
-    min-height: 0;
-    height: auto;
-  }
-
-  .product-stage img {
-    width: 100%;
-    max-height: 360px;
-    object-fit: contain;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 360px !important;
+    object-fit: contain !important;
   }
 
   .product-info {
-    padding-left: 0;
-    padding-top: 4px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 20px 26px 30px !important;
+    margin: 0 !important;
   }
 
   .product-info h1 {
-    margin-top: 6px;
-    margin-bottom: 12px;
+    margin: 0 0 12px !important;
+    font-size: 42px !important;
+    line-height: 1.05 !important;
+  }
+
+  .product-info > p {
+    margin: 0 0 18px !important;
+    font-size: 19px !important;
+    line-height: 1.5 !important;
+  }
+
+  .price-box {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
+    margin: 8px 0 20px !important;
+  }
+
+  .price-box .mrp {
+    font-size: 17px !important;
+  }
+
+  .price-box .sale-price {
+    font-size: 21px !important;
+  }
+
+  .price-box span {
+    white-space: nowrap !important;
+  }
+
+  .product-info ul {
+    margin: 0 0 20px !important;
+    padding-left: 28px !important;
+  }
+
+  .product-info li {
+    font-size: 18px !important;
+    line-height: 1.45 !important;
+    margin-bottom: 14px !important;
+  }
+
+  .buy-box {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 12px !important;
+    margin: 20px 0 !important;
+  }
+
+  .buy-box .btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+
+  .product-info .amazon {
+    width: 100% !important;
+    margin: 18px 0 0 !important;
+    font-size: 17px !important;
+    line-height: 1.5 !important;
   }
 }
-/* MOBILE PRODUCT PAGE FINAL FIX */
-@media (max-width: 520px) {
-/* MOBILE PRODUCT PAGE */
-@media (max-width:520px){
-
-  .product-layout{
-    display:block !important;
-  }
-
-  .gallery{
-    width:100% !important;
-    margin:0 !important;
-  }
-
-  .gallery-main{
-    width:100% !important;
-    height:auto !important;
-  }
-
-  .gallery-main img{
-    width:100% !important;
-    height:auto !important;
-    object-fit:contain !important;
-  }
-
-  .product-info{
-    width:100% !important;
-    max-width:none !important;
-    padding:24px 26px 30px !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-
-  .product-info h1{
-    margin:0 0 14px !important;
-    font-size:42px !important;
-    line-height:1.05 !important;
-  }
-
-  .product-info > p{
-    margin:0 0 18px !important;
-    font-size:19px !important;
-    line-height:1.5 !important;
-  }
-
-  .price-box{
-    display:flex !important;
-    align-items:center !important;
-    gap:6px !important;
-    flex-wrap:nowrap !important;
-    white-space:nowrap !important;
-    margin:10px 0 22px !important;
-  }
-
-  .price-box .mrp{
-    font-size:17px !important;
-  }
-
-  .price-box .sale-price{
-    font-size:21px !important;
-  }
-
-  .price-box span{
-    white-space:nowrap !important;
-  }
-
-  .product-info ul{
-    margin:0 0 22px !important;
-    padding-left:27px !important;
-  }
-
-  .product-info li{
-    font-size:18px !important;
-    line-height:1.5 !important;
-    margin-bottom:14px !important;
-  }
-
-  .buy-box{
-    display:flex !important;
-    flex-direction:column !important;
-    gap:12px !important;
-    width:100% !important;
-    margin:20px 0 !important;
-  }
-
-  .buy-box .btn{
-    width:100% !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    margin:0 !important;
-  }
-
-  .product-info .amazon{
-    margin-top:18px !important;
-    width:
