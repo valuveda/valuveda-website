@@ -1,116 +1,184 @@
-// ===============================
-// VALUVEDA WELLNESS - MAIN.JS
-// ===============================
+document.addEventListener('DOMContentLoaded', function () {
 
-document.addEventListener('DOMContentLoaded', () => {
+  // ==============================
+  // CONTACT NUMBER
+  // ==============================
 
-  // =========================================
-  // CONTACT DETAILS
-  // =========================================
-
-  const WHATSAPP = '8796257205';
-  const PHONE = '8796257205';
+  const phone = '8796257205';
 
   const whatsappMessage =
     'Hello ValuVeda Wellness, I want to know more about Karela Jamun Powder.';
 
 
-  // =========================================
-  // WHATSAPP BUTTONS
-  // =========================================
+  // ==============================
+  // WHATSAPP
+  // ==============================
 
-  document.querySelectorAll('[data-whatsapp]').forEach((button) => {
+  document.querySelectorAll('[data-whatsapp]').forEach(function (button) {
 
-    button.addEventListener('click', (event) => {
+    button.setAttribute(
+      'href',
+      'https://wa.me/91' +
+      phone +
+      '?text=' +
+      encodeURIComponent(whatsappMessage)
+    );
+
+    button.setAttribute('target', '_blank');
+    button.setAttribute('rel', 'noopener');
+
+  });
+
+
+  // ==============================
+  // CALL
+  // ==============================
+
+  document.querySelectorAll('[data-call]').forEach(function (button) {
+
+    button.setAttribute(
+      'href',
+      'tel:+91' + phone
+    );
+
+  });
+
+
+  // ==============================
+  // MOBILE MENU
+  // ==============================
+
+  const menuButton =
+    document.querySelector('.menu');
+
+  const navigation =
+    document.querySelector('.nav');
+
+  if (menuButton && navigation) {
+
+    menuButton.addEventListener('click', function (event) {
+
       event.preventDefault();
       event.stopPropagation();
 
-      const url =
-        'https://wa.me/91' +
-        WHATSAPP +
-        '?text=' +
-        encodeURIComponent(whatsappMessage);
+      navigation.classList.toggle('mobile-open');
 
-      window.location.href = url;
+    });
+
+  }
+
+
+  // ==============================
+  // HERB MODAL
+  // ==============================
+
+  const modal =
+    document.getElementById('herbModal');
+
+  const closeButton =
+    document.querySelector('.close');
+
+
+  document.querySelectorAll('[data-herb]').forEach(function (button) {
+
+    button.addEventListener('click', function () {
+
+      if (!modal) return;
+
+      const title =
+        document.getElementById('modalTitle');
+
+      const botanical =
+        document.getElementById('modalBotanical');
+
+      const role =
+        document.getElementById('modalRole');
+
+      const use =
+        document.getElementById('modalUse');
+
+
+      if (title) {
+        title.textContent =
+          button.dataset.name || '';
+      }
+
+      if (botanical) {
+        botanical.textContent =
+          button.dataset.botanical || '';
+      }
+
+      if (role) {
+        role.textContent =
+          button.dataset.role || '';
+      }
+
+      if (use) {
+        use.textContent =
+          'This information is provided for traditional/general wellness information.';
+      }
+
+      modal.classList.add('open');
+
     });
 
   });
 
 
-  // =========================================
-  // CALL BUTTONS
-  // =========================================
+  // ==============================
+  // CLOSE MODAL
+  // ==============================
 
-  document.querySelectorAll('[data-call]').forEach((button) => {
+  if (closeButton && modal) {
 
-    button.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
+    closeButton.addEventListener('click', function () {
 
-      window.location.href = 'tel:+91' + PHONE;
+      modal.classList.remove('open');
+
     });
 
-  });
+  }
 
 
-  // =========================================
-  // HERB DATA
-  // =========================================
+  if (modal) {
 
-  const ingredients = [
-    {
-      name: 'Jamun',
-      botanical: 'Syzygium cumini',
-      role: 'Traditionally used in Ayurveda as part of general wellness routines.'
-    },
-    {
-      name: 'Neem',
-      botanical: 'Azadirachta indica',
-      role: 'Traditionally used in Ayurveda as part of general wellness routines.'
-    },
-    {
-      name: 'Tulsi',
-      botanical: 'Ocimum tenuiflorum',
-      role: 'Traditionally used in Ayurveda for general wellness.'
-    },
-    {
-      name: 'Ashwagandha',
-      botanical: 'Withania somnifera',
-      role: 'Traditionally used in Ayurveda for general wellness.'
-    },
-    {
-      name: 'Bael',
-      botanical: 'Aegle marmelos',
-      role: 'Traditionally used in Ayurveda as a traditional botanical.'
-    },
-    {
-      name: 'Vijaysar',
-      botanical: 'Pterocarpus marsupium',
-      role: 'Traditionally used in Ayurveda as a botanical ingredient.'
-    },
-    {
-      name: 'Shatavari',
-      botanical: 'Asparagus racemosus',
-      role: 'Traditionally used in Ayurveda for general wellness.'
-    },
-    {
-      name: 'Methi',
-      botanical: 'Trigonella foenum-graecum',
-      role: 'Traditionally used as a traditional botanical ingredient.'
-    },
-    {
-      name: 'Saunf',
-      botanical: 'Foeniculum vulgare',
-      role: 'Traditionally used in traditional wellness routines.'
-    },
-    {
-      name: 'Gudmar',
-      botanical: 'Gymnema sylvestre',
-      role: 'Traditionally used in Ayurveda as a traditional botanical.'
-    },
-    {
-      name: 'Harsingar',
-      botanical: 'Nyctanthes arbor-tristis',
+    modal.addEventListener('click', function (event) {
+
+      if (event.target === modal) {
+
+        modal.classList.remove('open');
+
+      }
+
+    });
+
+  }
+
+
+  // ==============================
+  // YEAR
+  // ==============================
+
+  const year =
+    document.getElementById('year');
+
+  if (year) {
+
+    year.textContent =
+      new Date().getFullYear();
+
+  }
+
+
+  // ==============================
+  // FINISHED
+  // ==============================
+
+  console.log(
+    'ValuVeda Wellness website loaded successfully.'
+  );
+
+});      botanical: 'Nyctanthes arbor-tristis',
       role: 'Traditionally used as a traditional botanical ingredient.'
     },
     {
