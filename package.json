@@ -8,9 +8,11 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "db:generate": "prisma generate --schema=database/schema.prisma",
-    "db:validate": "prisma validate --schema=database/schema.prisma",
-    "db:format": "prisma format --schema=database/schema.prisma"
+    "db:generate": "prisma generate --schema=prisma/schema.prisma",
+    "db:validate": "prisma validate --schema=prisma/schema.prisma",
+    "db:format": "prisma format --schema=prisma/schema.prisma",
+    "db:migrate:dev": "prisma migrate dev --schema=prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",
