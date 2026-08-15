@@ -1,0 +1,105 @@
+name: Phase 1 Validation
+
+on:
+  push:
+    branches:
+      - phase-1-production-foundation
+  pull_request:
+    branches:
+      - phase-1-production-foundation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase1-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Phase 1 validation
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Validate Prisma schema
+        run: npm run db:validate
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Validate migration files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d prisma/migrations ]; then
+            echo "ERROR: prisma/migrations does not exist yet. The initial Prisma migration is still required."
+            exit 1
+          fi
+
+          if ! find prisma/migrations -mindepth 1 -maxdepth 1 -type d | grep -q .; then
+            echo "ERROR: prisma/migrations contains no migration. The initial Prisma migration is still required."
+            exit 1
+          fi
+
+          echo "Checking migration-to-schema consistency without applying migrations..."
+          npx prisma migrate diff \
+            --from-migrations prisma/migrations \
+            --to-schema-datamodel prisma/schema.prisma \
+            --exit-code
+
+      - name: Verify PostgreSQL connection
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${DATABASE_URL:-}" ] || [ -z "${DIRECT_URL:-}" ]; then
+            echo "ERROR: GitHub Actions secrets DATABASE_URL and DIRECT_URL are required for database connection validation."
+            echo "No database command that changes data is run by this workflow."
+            exit 1
+          fi
+
+          npx prisma migrate status --schema=prisma/schema.prisma
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests (if configured)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.test ? 0 : 1)"; then
+            npm test
+          else
+            echo "No test script is configured; skipping tests."
+          fi
+
+      - name: Production build
+        run: npm run build
+
+      - name: Verify existing static website files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in index.html product.html style.css main.js; do
+            test -f "$file" || { echo "ERROR: existing website file missing: $file"; exit 1; }
+          done
+          test -d assets || { echo "ERROR: existing assets directory missing"; exit 1; }
+          echo "Existing ValuVeda static website files and assets are present."
