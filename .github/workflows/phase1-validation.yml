@@ -109,3 +109,4 @@ jobs:
           echo "Existing ValuVeda static website files and assets are present."
 
 # Phase 1 validation only: this workflow never applies database migrations.
+# CI trigger marker: re-run validation after Development Supabase secret rotation.
