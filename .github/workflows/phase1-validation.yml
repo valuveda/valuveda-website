@@ -102,3 +102,5 @@ jobs:
           done
           test -d assets || { echo "ERROR: existing assets directory missing"; exit 1; }
           echo "Existing ValuVeda static website files and assets are present."
+
+# Phase 1 validation only: this workflow never applies database migrations.
