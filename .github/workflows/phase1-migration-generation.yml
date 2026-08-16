@@ -1,6 +1,9 @@
 name: Phase 1 Migration Generation
 
 on:
+  push:
+    branches:
+      - phase-1-production-foundation
   workflow_dispatch:
 
 permissions:
@@ -47,10 +50,17 @@ jobs:
           set -euo pipefail
           test -s prisma/migrations/00000000000000_init/migration.sql
           test -s prisma/migrations/migration_lock.toml
-          echo "Generated migration files:" 
+          echo "Generated migration files:"
           find prisma/migrations -maxdepth 2 -type f -print
-          echo "Migration SQL summary:" 
+          echo "Migration SQL summary:"
           grep -E '^-- (CreateTable|CreateIndex|AddForeignKey|AlterTable|DropTable|DropIndex|DropForeignKey)' prisma/migrations/00000000000000_init/migration.sql || true
+
+          if grep -Eiq '\b(DROP|TRUNCATE|DELETE FROM)\b' prisma/migrations/00000000000000_init/migration.sql; then
+            echo "ERROR: generated initial migration contains a destructive SQL operation."
+            exit 1
+          fi
+
+          echo "No destructive DROP/TRUNCATE/DELETE statements detected in the generated initial migration."
 
       - name: Upload generated migration for review
         uses: actions/upload-artifact@v4
