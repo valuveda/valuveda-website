@@ -48,7 +48,7 @@ jobs:
           mkdir -p prisma/migrations/00000000000000_init
           npx prisma migrate diff \
             --from-empty \
-            --to-schema prisma/schema.prisma \
+            --to-schema-datamodel prisma/schema.prisma \
             --script \
             --output prisma/migrations/00000000000000_init/migration.sql
           printf 'provider = "postgresql"\n' > prisma/migrations/migration_lock.toml
@@ -66,7 +66,7 @@ jobs:
           find prisma/migrations -maxdepth 2 -type f -print
           echo "Migration SQL statement summary:"
           grep -E '^(CREATE TABLE|CREATE UNIQUE INDEX|CREATE INDEX|ALTER TABLE .* ADD CONSTRAINT)' prisma/migrations/00000000000000_init/migration.sql || true
-          if grep -Eiq '(^|[[:space:]])(DROP TABLE|DROP SCHEMA|TRUNCATE|DROP DATABASE)([[:space:];]|$)' prisma/migrations/00000000000000_init/migration.sql; then
+          if grep -Eiq '(^|[[:space:]])(DROP TABLE|DROP SCHEMA|TRUNCATE|DROP DATABASE|DELETE FROM)([[:space:];]|$)' prisma/migrations/00000000000000_init/migration.sql; then
             echo "ERROR: generated initial migration contains a destructive statement. Stopping before any database operation."
             exit 1
           fi
