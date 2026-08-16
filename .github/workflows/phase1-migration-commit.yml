@@ -81,3 +81,5 @@ jobs:
           git add prisma/migrations
           git commit -m "db: add initial Prisma migration"
           git push origin HEAD:phase-1-production-foundation
+
+# Phase 1 only: generated migration is committed only after non-destructive review.
