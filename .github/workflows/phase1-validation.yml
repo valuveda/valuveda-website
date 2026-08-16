@@ -67,6 +67,61 @@ jobs:
           fi
           echo "Initial migration is consistent with the schema and contains no destructive statement."
 
+      - name: Diagnose masked database connection formats
+        shell: bash
+        run: |
+          set +e
+          node <<'NODE'
+          const { URL } = require('node:url');
+
+          function inspect(name, value) {
+            if (!value) {
+              console.log(`${name}: MISSING`);
+              return;
+            }
+            try {
+              const u = new URL(value);
+              const user = decodeURIComponent(u.username || '');
+              const qualified = user.includes('.') && user.split('.').length >= 2;
+              const pgbouncer = u.searchParams.get('pgbouncer') === 'true';
+              const sslmode = u.searchParams.get('sslmode') || 'not-set';
+              const host = u.hostname;
+              const port = u.port || '5432';
+              const pooler = host.endsWith('.pooler.supabase.com');
+              const supabaseDirect = host.startsWith('db.') && host.endsWith('.supabase.co');
+              console.log(`${name}: present; hostClass=${pooler ? 'supavisor-pooler' : supabaseDirect ? 'supabase-direct' : 'other'}; port=${port}; usernameProjectQualified=${qualified ? 'yes' : 'no'}; sslmode=${sslmode}; pgbouncer=${pgbouncer ? 'true' : 'false'}`);
+            } catch {
+              console.log(`${name}: INVALID_URL_FORMAT`);
+            }
+          }
+
+          inspect('DATABASE_URL', process.env.DATABASE_URL);
+          inspect('DIRECT_URL', process.env.DIRECT_URL);
+          NODE
+
+          echo "Testing DATABASE_URL authentication independently (read-only migrate status; no migration is applied)..."
+          DATABASE_URL="$DATABASE_URL" DIRECT_URL="$DATABASE_URL" npx prisma migrate status --schema=prisma/schema.prisma >/tmp/database-url-test.log 2>&1
+          db_status=$?
+          if [ "$db_status" -eq 0 ]; then
+            echo "DATABASE_URL independent connection test: PASSED"
+          else
+            echo "DATABASE_URL independent connection test: FAILED (exit $db_status)"
+            grep -E 'P1000|P1001|P1017|P1001|Authentication failed|Can.t reach|Error:' /tmp/database-url-test.log | tail -n 5 || tail -n 8 /tmp/database-url-test.log
+          fi
+
+          echo "Testing DIRECT_URL authentication independently (read-only migrate status; no migration is applied)..."
+          DATABASE_URL="$DIRECT_URL" DIRECT_URL="$DIRECT_URL" npx prisma migrate status --schema=prisma/schema.prisma >/tmp/direct-url-test.log 2>&1
+          direct_status=$?
+          if [ "$direct_status" -eq 0 ]; then
+            echo "DIRECT_URL independent connection test: PASSED"
+          else
+            echo "DIRECT_URL independent connection test: FAILED (exit $direct_status)"
+            grep -E 'P1000|P1001|P1017|Authentication failed|Can.t reach|Error:' /tmp/direct-url-test.log | tail -n 5 || tail -n 8 /tmp/direct-url-test.log
+          fi
+
+          echo "The diagnostic never prints a secret, password, or full connection URL."
+          exit 0
+
       - name: Verify PostgreSQL connection
         shell: bash
         run: |
@@ -109,4 +164,4 @@ jobs:
           echo "Existing ValuVeda static website files and assets are present."
 
 # Phase 1 validation only: this workflow never applies database migrations.
-# CI trigger marker: re-run validation after Development Supabase secret rotation.
+# CI diagnostics deliberately print only non-secret connection metadata.
