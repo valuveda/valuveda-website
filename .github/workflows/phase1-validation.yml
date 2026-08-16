@@ -46,21 +46,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -d prisma/migrations ]; then
-            echo "ERROR: prisma/migrations does not exist yet. The initial Prisma migration is still required."
-            exit 1
-          fi
+          test -d prisma/migrations
+          test -s prisma/migrations/00000000000000_init/migration.sql
+          test -s prisma/migrations/migration_lock.toml
 
-          if ! find prisma/migrations -mindepth 1 -maxdepth 1 -type d | grep -q .; then
-            echo "ERROR: prisma/migrations contains no migration. The initial Prisma migration is still required."
-            exit 1
-          fi
-
-          echo "Checking migration-to-schema consistency without applying migrations..."
+          echo "Checking initial migration-to-schema consistency without applying migrations or connecting to the database..."
           npx prisma migrate diff \
-            --from-migrations prisma/migrations \
+            --from-empty \
             --to-schema-datamodel prisma/schema.prisma \
-            --exit-code
+            --script \
+            --output /tmp/expected-initial-migration.sql
+          cmp -s /tmp/expected-initial-migration.sql prisma/migrations/00000000000000_init/migration.sql || {
+            echo "ERROR: committed initial migration SQL does not exactly match the current Prisma schema."
+            exit 1
+          }
+
+          if grep -Eiq '(^|[[:space:]])(DROP TABLE|DROP SCHEMA|TRUNCATE|DROP DATABASE|DELETE FROM)([[:space:];]|$)' prisma/migrations/00000000000000_init/migration.sql; then
+            echo "ERROR: committed initial migration contains a destructive statement."
+            exit 1
+          fi
+          echo "Initial migration is consistent with the schema and contains no destructive statement."
 
       - name: Verify PostgreSQL connection
         shell: bash
