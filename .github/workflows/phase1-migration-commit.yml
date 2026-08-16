@@ -1,0 +1,83 @@
+name: Phase 1 Migration Commit
+
+on:
+  push:
+    branches:
+      - phase-1-production-foundation
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-migration:
+    name: Generate initial Prisma migration
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Validate Prisma schema
+        run: npm run db:validate
+
+      - name: Generate migration when missing
+        id: generate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d prisma/migrations ] && find prisma/migrations -mindepth 1 -maxdepth 1 -type d | grep -q .; then
+            echo "migration_created=false" >> "$GITHUB_OUTPUT"
+            echo "An existing Prisma migration is already present; nothing to generate."
+            exit 0
+          fi
+
+          mkdir -p prisma/migrations/00000000000000_init
+          npx prisma migrate diff \
+            --from-empty \
+            --to-schema prisma/schema.prisma \
+            --script \
+            --output prisma/migrations/00000000000000_init/migration.sql
+          printf 'provider = "postgresql"\n' > prisma/migrations/migration_lock.toml
+
+          test -s prisma/migrations/00000000000000_init/migration.sql
+          test -s prisma/migrations/migration_lock.toml
+          echo "migration_created=true" >> "$GITHUB_OUTPUT"
+
+      - name: Review generated migration
+        if: steps.generate.outputs.migration_created == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Generated migration files:"
+          find prisma/migrations -maxdepth 2 -type f -print
+          echo "Migration SQL statement summary:"
+          grep -E '^(CREATE TABLE|CREATE UNIQUE INDEX|CREATE INDEX|ALTER TABLE .* ADD CONSTRAINT)' prisma/migrations/00000000000000_init/migration.sql || true
+          if grep -Eiq '(^|[[:space:]])(DROP TABLE|DROP SCHEMA|TRUNCATE|DROP DATABASE)([[:space:];]|$)' prisma/migrations/00000000000000_init/migration.sql; then
+            echo "ERROR: generated initial migration contains a destructive statement. Stopping before any database operation."
+            exit 1
+          fi
+
+      - name: Commit generated migration to Phase 1 branch
+        if: steps.generate.outputs.migration_created == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prisma/migrations
+          git commit -m "db: add initial Prisma migration"
+          git push origin HEAD:phase-1-production-foundation
