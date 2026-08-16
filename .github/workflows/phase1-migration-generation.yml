@@ -1,0 +1,60 @@
+name: Phase 1 Migration Generation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-migration:
+    name: Generate initial Prisma migration
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Validate Prisma schema
+        run: npm run db:validate
+
+      - name: Generate initial migration SQL with Prisma
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p prisma/migrations/00000000000000_init
+          npx prisma migrate diff \
+            --from-empty \
+            --to-schema prisma/schema.prisma \
+            --script \
+            --output prisma/migrations/00000000000000_init/migration.sql
+          printf 'provider = "postgresql"\n' > prisma/migrations/migration_lock.toml
+
+      - name: Review generated migration safety markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s prisma/migrations/00000000000000_init/migration.sql
+          test -s prisma/migrations/migration_lock.toml
+          echo "Generated migration files:" 
+          find prisma/migrations -maxdepth 2 -type f -print
+          echo "Migration SQL summary:" 
+          grep -E '^-- (CreateTable|CreateIndex|AddForeignKey|AlterTable|DropTable|DropIndex|DropForeignKey)' prisma/migrations/00000000000000_init/migration.sql || true
+
+      - name: Upload generated migration for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-initial-prisma-migration
+          path: prisma/migrations/
+          retention-days: 7
