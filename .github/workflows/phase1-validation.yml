@@ -83,13 +83,14 @@ jobs:
               const u = new URL(value);
               const user = decodeURIComponent(u.username || '');
               const qualified = user.includes('.') && user.split('.').length >= 2;
+              const userSuffix = user.length >= 4 ? user.slice(-4) : 'short';
               const pgbouncer = u.searchParams.get('pgbouncer') === 'true';
               const sslmode = u.searchParams.get('sslmode') || 'not-set';
               const host = u.hostname;
               const port = u.port || '5432';
               const pooler = host.endsWith('.pooler.supabase.com');
               const supabaseDirect = host.startsWith('db.') && host.endsWith('.supabase.co');
-              console.log(`${name}: present; hostClass=${pooler ? 'supavisor-pooler' : supabaseDirect ? 'supabase-direct' : 'other'}; port=${port}; usernameProjectQualified=${qualified ? 'yes' : 'no'}; sslmode=${sslmode}; pgbouncer=${pgbouncer ? 'true' : 'false'}`);
+              console.log(`${name}: present; hostClass=${pooler ? 'supavisor-pooler' : supabaseDirect ? 'supabase-direct' : 'other'}; port=${port}; usernameProjectQualified=${qualified ? 'yes' : 'no'}; usernameSuffix4=${userSuffix}; sslmode=${sslmode}; pgbouncer=${pgbouncer ? 'true' : 'false'}`);
             } catch {
               console.log(`${name}: INVALID_URL_FORMAT`);
             }
@@ -106,7 +107,7 @@ jobs:
             echo "DATABASE_URL independent connection test: PASSED"
           else
             echo "DATABASE_URL independent connection test: FAILED (exit $db_status)"
-            grep -E 'P1000|P1001|P1017|P1001|Authentication failed|Can.t reach|Error:' /tmp/database-url-test.log | tail -n 5 || tail -n 8 /tmp/database-url-test.log
+            grep -E 'P1000|P1001|P1017|Authentication failed|Can.t reach|Error:' /tmp/database-url-test.log | tail -n 5 || tail -n 8 /tmp/database-url-test.log
           fi
 
           echo "Testing DIRECT_URL authentication independently (read-only migrate status; no migration is applied)..."
