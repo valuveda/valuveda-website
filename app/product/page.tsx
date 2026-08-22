@@ -1,0 +1,19 @@
+import Link from 'next/link'
+
+const sections = [
+  ['Ingredients', 'Karela, Jamun and 15+ Ayurvedic botanicals presented with clear, responsible information.'],
+  ['How to use', 'Follow the exact serving and preparation instructions printed on the current approved product label.'],
+  ['Shipping', 'Free PAN India shipping with delivery timelines subject to location and operational conditions.'],
+  ['Replacement', 'Eligible damaged, incorrect or tampered deliveries can be handled according to the published replacement policy.'],
+]
+
+export default function ProductPage() {
+  return (
+    <main className="min-h-screen bg-[#f6f2e9] text-[#17352a]">
+      <header className="border-b border-[#17352a]/10 bg-[#f6f2e9]"><div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-8"><Link href="/" className="font-semibold">ValuVeda Wellness</Link><Link href="/" className="text-sm">← Home</Link></div></header>
+      <section className="mx-auto grid max-w-7xl gap-12 px-5 py-14 lg:grid-cols-2 lg:px-8 lg:py-24"><div className="flex min-h-[500px] items-center justify-center rounded-[2rem] bg-[#e6ddca] p-10"><div className="rounded-[2rem] bg-white/60 px-14 py-20 text-center shadow-xl"><p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#8b6b3f]">ValuVeda Wellness</p><h1 className="mt-5 text-5xl font-semibold">Karela<br/>Jamun<br/>Powder</h1><p className="mt-6 text-sm text-[#17352a]/60">200g • 15+ Ayurvedic Herbs</p></div></div><div className="flex flex-col justify-center"><p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b6b3f]">Premium herbal wellness</p><h2 className="mt-4 text-5xl font-semibold leading-tight">A thoughtful daily formulation.</h2><p className="mt-6 text-lg leading-8 text-[#17352a]/65">Made with Karela, Jamun and 15+ Ayurvedic botanicals for a simple everyday wellness routine.</p><div className="mt-8 flex items-end gap-3"><span className="text-sm text-[#17352a]/45 line-through">₹2,499</span><strong className="text-4xl">₹1,499</strong></div><div className="mt-8 flex flex-wrap gap-3"><a href="https://amzn.in/d/05sFcLjk" target="_blank" rel="noreferrer" className="rounded-full bg-[#17352a] px-7 py-3.5 font-medium text-white">Buy on Amazon</a><a href="https://wa.me/918796257205" target="_blank" rel="noreferrer" className="rounded-full border border-[#17352a]/20 px-7 py-3.5 font-medium">WhatsApp</a></div><div className="mt-8 grid grid-cols-3 gap-3 border-t border-[#17352a]/10 pt-6 text-sm"><span><b className="block text-xl">200g</b>Net quantity</span><span><b className="block text-xl">15+</b>Herbs</span><span><b className="block text-xl">₹1,499</b>Offer</span></div></div></section>
+      <section className="border-y border-[#17352a]/10 bg-white/50 py-20"><div className="mx-auto max-w-7xl px-5 lg:px-8"><p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b6b3f]">Complete product guide</p><h2 className="mt-3 text-4xl font-semibold">Everything in one place.</h2><div className="mt-10 grid gap-4 md:grid-cols-2">{sections.map(([title,body],i)=><article key={title} className="rounded-2xl border border-[#17352a]/10 bg-[#f6f2e9] p-7"><span className="text-xs text-[#8b6b3f]">0{i+1}</span><h3 className="mt-5 text-2xl font-semibold">{title}</h3><p className="mt-3 leading-7 text-[#17352a]/65">{body}</p></article>)}</div></div></section>
+      <section className="bg-[#17352a] py-16 text-white"><div className="mx-auto max-w-4xl px-5 text-center lg:px-8"><h2 className="text-3xl font-semibold">Questions before ordering?</h2><p className="mt-4 text-white/65">The production product experience will connect customers to order support, account access, tracking and checkout.</p><Link href="/" className="mt-7 inline-block rounded-full bg-white px-7 py-3.5 font-medium text-[#17352a]">Back to Home</Link></div></section>
+    </main>
+  )
+}
