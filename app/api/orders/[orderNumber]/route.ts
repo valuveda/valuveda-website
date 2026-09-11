@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/src/lib/db'
+import { COOKIE_NAME, readCustomerSession } from '@/src/lib/customer-session'
+import { normalizeIndianMobile } from '@/src/lib/otp-policy'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ orderNumber: string }> }) {
   const { orderNumber } = await params
-  const mobile = request.nextUrl.searchParams.get('mobile')?.replace(/\D/g, '') ?? ''
-  if (!/^\d{10}$/.test(mobile)) return NextResponse.json({ error: 'Mobile verification is required' }, { status: 400 })
+  const session = readCustomerSession(request.cookies.get(COOKIE_NAME)?.value)
+  const mobileInput = request.nextUrl.searchParams.get('mobile') ?? ''
+
+  let customerId: string | undefined
+  let mobile: string | undefined
+  if (session) {
+    customerId = session.customerId
+  } else {
+    try {
+      mobile = normalizeIndianMobile(mobileInput)
+    } catch {
+      return NextResponse.json({ error: 'Mobile verification is required' }, { status: 400 })
+    }
+  }
 
   try {
     const order = await db.order.findFirst({
-      where: { orderNumber, customerMobile: { endsWith: mobile } },
+      where: customerId ? { orderNumber, customerId } : { orderNumber, customerMobile: mobile },
       select: {
         orderNumber: true, status: true, paymentStatus: true, paymentMethod: true,
         subtotal: true, discountTotal: true, shippingTotal: true, taxTotal: true, grandTotal: true,
