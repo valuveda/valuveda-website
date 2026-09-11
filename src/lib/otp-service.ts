@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client'
 import { db } from '@/src/lib/db'
 import {
   OTP_MAX_ATTEMPTS,
@@ -15,9 +14,7 @@ export type OtpDelivery = {
 }
 
 class ConfiguredOtpDelivery implements OtpDelivery {
-  async send(mobile: string, otp: string) {
-    // Provider wiring is intentionally isolated here. No OTP is ever returned
-    // by an API response; production must configure a real delivery adapter.
+  async send(_mobile: string, _otp: string) {
     const provider = process.env.OTP_DELIVERY_PROVIDER
     if (!provider) throw new Error('OTP delivery is not configured')
     throw new Error(`OTP delivery provider ${provider} is not configured`)
@@ -69,7 +66,6 @@ export async function requestMobileOtp(mobileInput: string, now = new Date()) {
   try {
     await otpDelivery.send(mobile, otp)
   } catch (error) {
-    // Do not leave an apparently valid challenge when delivery did not happen.
     await db.$executeRaw`
       UPDATE otp_challenges
       SET verified_at = ${now}
