@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         return 'invalid'
       }
       if (payment.currency && payment.currency !== record.currency) {
-        await tx.webhookEvent.update({ where: { providerCode_eventId: { providerCode_eventId: 'razorpay', eventId } }, data: { status: 'FAILED', errorMessage: 'Payment currency mismatch', processedAt: new Date() } })
+        await tx.webhookEvent.update({ where: { providerCode_eventId: { providerCode: 'razorpay', eventId } }, data: { status: 'FAILED', errorMessage: 'Payment currency mismatch', processedAt: new Date() } })
         return 'invalid'
       }
       if (record.status !== 'PAID') {
