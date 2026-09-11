@@ -2,6 +2,7 @@ import { db } from '@/src/lib/db'
 import { createOrderNumber } from '@/src/lib/order-number'
 import { calculatePricing } from '@/src/lib/pricing'
 import { reserveInventory } from '@/src/lib/checkout/inventory'
+import { normalizeIndianMobile } from '@/src/lib/otp-policy'
 import { PaymentMethod } from '@prisma/client'
 
 export type CreateOrderInput = {
@@ -12,15 +13,20 @@ export type CreateOrderInput = {
   customerEmail?: string
   shippingAddress: Record<string, unknown>
   paymentMethod: PaymentMethod
-  shippingTotal?: number
-  taxTotal?: number
-  coupon?: { code: string; amount: number } | null
-  isFirstTimeCustomer?: boolean
 }
 
 export async function createCheckoutOrder(input: CreateOrderInput) {
   if (!input.items.length) throw new Error('Cart is empty')
   if (!input.customerName.trim() || !input.customerMobile.trim()) throw new Error('Customer details are required')
+
+  const customerMobile = normalizeIndianMobile(input.customerMobile)
+  let isFirstTimeCustomer = false
+
+  if (input.customerId) {
+    const customer = await db.customer.findUnique({ where: { id: input.customerId }, select: { id: true, mobile: true, orders: { select: { id: true }, take: 1 } } })
+    if (!customer || customer.mobile !== customerMobile) throw new Error('Customer identity could not be verified')
+    isFirstTimeCustomer = customer.orders.length === 0
+  }
 
   const quantities = new Map<string, number>()
   for (const item of input.items) {
@@ -32,7 +38,7 @@ export async function createCheckoutOrder(input: CreateOrderInput) {
   if (variants.length !== quantities.size) throw new Error('One or more products are unavailable')
 
   const lines = variants.map((variant) => { const quantity = quantities.get(variant.id)!; return { quantity, unitPrice: Number(variant.sellingPrice), mrp: Number(variant.mrp), lineTotal: Number(variant.sellingPrice) * quantity } })
-  const pricing = calculatePricing({ lines, isFirstTimeCustomer: Boolean(input.isFirstTimeCustomer), coupon: input.coupon, shippingTotal: input.shippingTotal, taxTotal: input.taxTotal })
+  const pricing = calculatePricing({ lines, isFirstTimeCustomer, coupon: null, shippingTotal: 0, taxTotal: 0 })
   const orderNumber = createOrderNumber()
 
   const order = await db.$transaction(async (tx) => {
@@ -41,7 +47,7 @@ export async function createCheckoutOrder(input: CreateOrderInput) {
         orderNumber, customerId: input.customerId, status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: input.paymentMethod,
         codVerificationStatus: input.paymentMethod === PaymentMethod.COD ? 'PENDING' : 'NOT_REQUIRED', currency: 'INR', subtotal: pricing.subtotal,
         discountTotal: pricing.discountTotal, shippingTotal: pricing.shippingTotal, taxTotal: pricing.taxTotal, grandTotal: pricing.grandTotal,
-        customerName: input.customerName.trim(), customerMobile: input.customerMobile.trim(), customerEmail: input.customerEmail?.trim() || null,
+        customerName: input.customerName.trim(), customerMobile, customerEmail: input.customerEmail?.trim() || null,
         shippingAddressSnapshot: input.shippingAddress,
         items: { create: variants.map((variant) => { const quantity = quantities.get(variant.id)!; return { productId: variant.productId, variantId: variant.id, productNameSnapshot: variant.product.name, variantNameSnapshot: variant.name, skuSnapshot: variant.sku, quantity, unitMrp: variant.mrp, unitPrice: variant.sellingPrice, lineTotal: Number(variant.sellingPrice) * quantity } }) },
         discounts: { create: pricing.discounts.map((discount) => ({ code: discount.code, name: discount.name, type: 'FIXED', amount: discount.amount })) },
