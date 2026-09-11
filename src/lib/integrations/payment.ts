@@ -1,3 +1,5 @@
+import { RazorpayPaymentProvider } from './razorpay'
+
 export type PaymentCreateInput = {
   orderNumber: string
   amount: number
@@ -31,8 +33,7 @@ export class CodPaymentProvider implements PaymentProvider {
   }
 }
 
-/** Razorpay is deliberately an adapter boundary. Credentials are read only on the server when implementation is enabled. */
 export function getPaymentProvider(method: 'COD' | 'ONLINE'): PaymentProvider {
   if (method === 'COD') return new CodPaymentProvider()
-  throw new Error('ONLINE payment provider is not configured')
+  return new RazorpayPaymentProvider()
 }
