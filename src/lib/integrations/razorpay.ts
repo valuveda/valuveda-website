@@ -1,4 +1,4 @@
-import { createHmac } from 'node:crypto'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { PaymentCreateInput, PaymentCreateResult, PaymentProvider } from './payment'
 
 export class RazorpayPaymentProvider implements PaymentProvider {
@@ -28,7 +28,9 @@ export class RazorpayPaymentProvider implements PaymentProvider {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET
     if (!secret || !signature) return false
     const digest = createHmac('sha256', secret).update(rawBody).digest('hex')
-    return digest.length === signature.length && timingSafeEqual(Buffer.from(digest), Buffer.from(signature))
+    const actual = Buffer.from(digest)
+    const expected = Buffer.from(signature)
+    return actual.length === expected.length && timingSafeEqual(actual, expected)
   }
 
   async refund(providerPaymentId: string, amount: number) {
@@ -48,8 +50,4 @@ export class RazorpayPaymentProvider implements PaymentProvider {
     if (!data.id) throw new Error('Invalid Razorpay refund response')
     return { providerRefundId: data.id }
   }
-}
-
-function timingSafeEqual(a: Buffer, b: Buffer) {
-  return a.length === b.length && require('node:crypto').timingSafeEqual(a, b)
 }
