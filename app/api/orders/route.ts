@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid checkout request' }, { status: 400 })
     }
 
-    if (body.coupon || body.isFirstTimeCustomer || typeof body.shippingTotal === 'number' || typeof body.taxTotal === 'number') {
-      return NextResponse.json({ error: 'Client-supplied pricing fields are not accepted' }, { status: 400 })
+    if ('isFirstTimeCustomer' in body || 'shippingTotal' in body || 'taxTotal' in body || (body.coupon && typeof body.coupon !== 'string')) {
+      return NextResponse.json({ error: 'Invalid client pricing fields' }, { status: 400 })
     }
 
     const result = await createCheckoutOrder({
@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
       customerEmail: typeof body.customerEmail === 'string' ? body.customerEmail : undefined,
       shippingAddress: body.shippingAddress,
       paymentMethod,
+      couponCode: typeof body.coupon === 'string' ? body.coupon : undefined,
     })
 
     return NextResponse.json(result, { status: 201 })
@@ -34,8 +35,20 @@ export async function POST(request: NextRequest) {
       'Invalid quantity',
       'One or more products are unavailable',
       'Customer identity could not be verified',
+      'Coupon code is required',
+      'Invalid or inactive coupon',
+      'Coupon is not active yet',
+      'Coupon has expired',
+      'Coupon rule is disabled',
+      'Coupon usage limit reached',
+      'You have reached this coupon limit',
+      'Coupon is valid only for first-time customers',
+      'Coupon cannot be combined with other discounts',
+      'Coupon has no applicable discount',
     ])
-    if (clientErrors.has(message)) return NextResponse.json({ error: message }, { status: 400 })
+    if (clientErrors.has(message) || message.startsWith('Minimum ') || message.startsWith('Maximum ')) {
+      return NextResponse.json({ error: message }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Unable to create order' }, { status: 503 })
   }
 }
