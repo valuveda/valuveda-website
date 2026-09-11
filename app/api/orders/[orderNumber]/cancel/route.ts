@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cancelOrder } from '@/src/lib/orders/cancel-order'
+import { normalizeIndianMobile } from '@/src/lib/otp-policy'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ orderNumber: string }> }) {
   const { orderNumber } = await params
-  const mobile = request.nextUrl.searchParams.get('mobile')?.replace(/\D/g, '') ?? ''
-  if (!/^\d{10}$/.test(mobile)) return NextResponse.json({ error: 'Mobile verification is required' }, { status: 400 })
+  const mobileInput = request.nextUrl.searchParams.get('mobile') ?? ''
+
+  let mobile: string
+  try {
+    mobile = normalizeIndianMobile(mobileInput)
+  } catch {
+    return NextResponse.json({ error: 'Valid mobile verification is required' }, { status: 400 })
+  }
 
   try {
-    const result = await cancelOrder(orderNumber)
+    const result = await cancelOrder(orderNumber, mobile)
     return NextResponse.json(result)
   } catch (error) {
     const message = error instanceof Error ? error.message : ''
