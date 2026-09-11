@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     const result = await verifyMobileOtp(body.mobile, body.otp)
     const session = createCustomerSession(result.customerId)
-    const response = NextResponse.json({ ok: true })
+    const response = NextResponse.json({ ok: true, customerId: result.customerId })
     response.headers.append('Set-Cookie', customerSessionCookie(session))
     return response
   } catch (error) {
@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
       'OTP attempt limit reached',
     ])
     if (clientErrors.has(message)) return NextResponse.json({ error: message }, { status: 400 })
+    if (message === 'CUSTOMER_SESSION_SECRET is not configured') {
+      return NextResponse.json({ error: 'Authentication is not configured' }, { status: 503 })
+    }
     return NextResponse.json({ error: 'Unable to verify OTP' }, { status: 503 })
   }
 }
