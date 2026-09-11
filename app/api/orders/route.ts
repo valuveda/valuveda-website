@@ -10,6 +10,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid checkout request' }, { status: 400 })
     }
 
+    if (body.coupon || body.isFirstTimeCustomer || typeof body.shippingTotal === 'number' || typeof body.taxTotal === 'number') {
+      return NextResponse.json({ error: 'Client-supplied pricing fields are not accepted' }, { status: 400 })
+    }
+
     const result = await createCheckoutOrder({
       items: body.items,
       customerId: typeof body.customerId === 'string' ? body.customerId : undefined,
@@ -18,12 +22,6 @@ export async function POST(request: NextRequest) {
       customerEmail: typeof body.customerEmail === 'string' ? body.customerEmail : undefined,
       shippingAddress: body.shippingAddress,
       paymentMethod,
-      shippingTotal: typeof body.shippingTotal === 'number' ? body.shippingTotal : undefined,
-      taxTotal: typeof body.taxTotal === 'number' ? body.taxTotal : undefined,
-      coupon: body.coupon && typeof body.coupon.code === 'string' && typeof body.coupon.amount === 'number'
-        ? { code: body.coupon.code, amount: body.coupon.amount }
-        : null,
-      isFirstTimeCustomer: Boolean(body.isFirstTimeCustomer),
     })
 
     return NextResponse.json(result, { status: 201 })
@@ -32,8 +30,10 @@ export async function POST(request: NextRequest) {
     const clientErrors = new Set([
       'Cart is empty',
       'Customer details are required',
+      'Invalid mobile number',
       'Invalid quantity',
       'One or more products are unavailable',
+      'Customer identity could not be verified',
     ])
     if (clientErrors.has(message)) return NextResponse.json({ error: message }, { status: 400 })
     return NextResponse.json({ error: 'Unable to create order' }, { status: 503 })
