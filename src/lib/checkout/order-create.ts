@@ -2,6 +2,7 @@ import { db } from '@/src/lib/db'
 import { createOrderNumber } from '@/src/lib/order-number'
 import { calculatePricing } from '@/src/lib/pricing'
 import { reserveInventory } from '@/src/lib/checkout/inventory'
+import { validateCoupon } from '@/src/lib/checkout/coupon'
 import { normalizeIndianMobile } from '@/src/lib/otp-policy'
 import { PaymentMethod } from '@prisma/client'
 
@@ -13,6 +14,7 @@ export type CreateOrderInput = {
   customerEmail?: string
   shippingAddress: Record<string, unknown>
   paymentMethod: PaymentMethod
+  couponCode?: string
 }
 
 export async function createCheckoutOrder(input: CreateOrderInput) {
@@ -38,7 +40,21 @@ export async function createCheckoutOrder(input: CreateOrderInput) {
   if (variants.length !== quantities.size) throw new Error('One or more products are unavailable')
 
   const lines = variants.map((variant) => { const quantity = quantities.get(variant.id)!; return { quantity, unitPrice: Number(variant.sellingPrice), mrp: Number(variant.mrp), lineTotal: Number(variant.sellingPrice) * quantity } })
-  const pricing = calculatePricing({ lines, isFirstTimeCustomer, coupon: null, shippingTotal: 0, taxTotal: 0 })
+  const basePricing = calculatePricing({ lines, isFirstTimeCustomer, coupon: null, shippingTotal: 0, taxTotal: 0 })
+
+  let coupon: Awaited<ReturnType<typeof validateCoupon>> | null = null
+  if (input.couponCode) {
+    coupon = await validateCoupon({ code: input.couponCode, subtotal: basePricing.subtotal, quantity: [...quantities.values()].reduce((sum, value) => sum + value, 0), customerId: input.customerId, isFirstTimeCustomer })
+    if (!coupon.stackable && basePricing.discounts.length > 0) throw new Error('Coupon cannot be combined with other discounts')
+  }
+
+  const pricing = calculatePricing({
+    lines,
+    isFirstTimeCustomer,
+    coupon: coupon ? { code: coupon.code, amount: coupon.amount } : null,
+    shippingTotal: 0,
+    taxTotal: 0,
+  })
   const orderNumber = createOrderNumber()
 
   const order = await db.$transaction(async (tx) => {
@@ -55,6 +71,11 @@ export async function createCheckoutOrder(input: CreateOrderInput) {
       },
       select: { id: true, orderNumber: true, status: true, paymentStatus: true, grandTotal: true },
     })
+
+    if (coupon) {
+      await tx.couponRedemption.create({ data: { couponId: coupon.couponId, customerId: input.customerId ?? null, orderId: created.id, amount: coupon.amount } })
+    }
+
     await reserveInventory(tx, [...quantities].map(([variantId, quantity]) => ({ variantId, quantity })), created.id)
     return created
   })
