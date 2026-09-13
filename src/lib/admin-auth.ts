@@ -13,6 +13,7 @@ export async function requireStaff(request: NextRequest, permission?: Permission
       id: true,
       email: true,
       name: true,
+      branchId: true,
       status: true,
       roles: { select: { role: { select: { name: true } } } },
     },
@@ -25,4 +26,12 @@ export async function requireStaff(request: NextRequest, permission?: Permission
   }
 
   return { ...staff, roles }
+}
+
+export function scopedBranchId(staff: { branchId: string | null; roles: string[] }, requested?: string | null) {
+  const elevated = staff.roles.some((role) => role === 'SUPER_ADMIN' || role === 'ADMIN')
+  if (elevated) return requested ?? null
+  if (!staff.branchId) throw new Error('Branch assignment required')
+  if (requested && requested !== staff.branchId) throw new Error('Branch access denied')
+  return staff.branchId
 }
