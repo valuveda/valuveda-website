@@ -4,8 +4,8 @@ export async function reserveInventory(tx: Prisma.TransactionClient, items: Arra
   let fulfillmentBranchId: string | null = null
 
   for (const item of items) {
-    const updated = fulfillmentBranchId
-      ? await tx.$executeRaw`
+    const rows = fulfillmentBranchId
+      ? await tx.$queryRaw<Array<{ branch_id: string }>>`
           WITH candidate AS (
             SELECT id
             FROM inventory
@@ -20,10 +20,11 @@ export async function reserveInventory(tx: Prisma.TransactionClient, items: Arra
           SET reserved = i.reserved + ${item.quantity}, updated_at = NOW()
           FROM candidate
           WHERE i.id = candidate.id
+          RETURNING i.branch_id::text AS branch_id
         `
-      : await tx.$executeRaw`
+      : await tx.$queryRaw<Array<{ branch_id: string }>>`
           WITH candidate AS (
-            SELECT id, branch_id
+            SELECT id
             FROM inventory
             WHERE variant_id = ${item.variantId}::uuid
               AND quantity - reserved >= ${item.quantity}
@@ -35,21 +36,11 @@ export async function reserveInventory(tx: Prisma.TransactionClient, items: Arra
           SET reserved = i.reserved + ${item.quantity}, updated_at = NOW()
           FROM candidate
           WHERE i.id = candidate.id
+          RETURNING i.branch_id::text AS branch_id
         `
 
-    if (updated !== 1) throw new Error('Insufficient inventory in a single fulfillment branch')
-
-    const reservedRow = await tx.$queryRaw<Array<{ branch_id: string }>>`
-      SELECT branch_id::text AS branch_id
-      FROM inventory
-      WHERE variant_id = ${item.variantId}::uuid
-        AND reserved >= ${item.quantity}
-        ${fulfillmentBranchId ? Prisma.sql`AND branch_id = ${fulfillmentBranchId}::uuid` : Prisma.empty}
-      ORDER BY updated_at DESC, id
-      LIMIT 1
-    `
-    const branchId = reservedRow[0]?.branch_id
-    if (!branchId) throw new Error('Fulfillment branch could not be determined')
+    const branchId = rows[0]?.branch_id
+    if (!branchId) throw new Error('Insufficient inventory in a single fulfillment branch')
     fulfillmentBranchId ??= branchId
 
     const variant = await tx.productVariant.findUnique({ where: { id: item.variantId }, select: { productId: true } })
