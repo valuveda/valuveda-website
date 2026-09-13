@@ -26,19 +26,23 @@ export default async function AdminPage() {
   const roleNames = staff.roles.map(({ role }) => role.name)
   const elevated = roleNames.includes('SUPER_ADMIN') || roleNames.includes('ADMIN')
   const branchFilter = staff.branchId && !elevated ? { items: { some: { variant: { inventory: { some: { branchId: staff.branchId } } } } } } : undefined
+  const inventoryBranchId = staff.branchId && !elevated ? staff.branchId : null
   const start = new Date()
   start.setHours(0, 0, 0, 0)
-  const [todayOrders, revenue, lowStock, pendingDispatch] = await Promise.all([
+  const lowStockPromise = inventoryBranchId
+    ? db.$queryRaw<Array<{ count: bigint }>>`SELECT COUNT(*)::bigint AS count FROM inventory WHERE branch_id = ${inventoryBranchId}::uuid AND quantity <= reorder_level`
+    : db.$queryRaw<Array<{ count: bigint }>>`SELECT COUNT(*)::bigint AS count FROM inventory WHERE quantity <= reorder_level`
+  const [todayOrders, revenue, lowStockRows, pendingDispatch] = await Promise.all([
     db.order.count({ where: { createdAt: { gte: start }, ...branchFilter } }),
     db.order.aggregate({ where: { createdAt: { gte: start }, status: { not: 'CANCELLED' }, ...branchFilter }, _sum: { grandTotal: true } }),
-    db.inventory.count({ where: { ...(staff.branchId && !elevated ? { branchId: staff.branchId } : {}), quantity: { lte: db.inventory.fields.reorderLevel } } }),
+    lowStockPromise,
     db.order.count({ where: { status: { in: ['CONFIRMED', 'PROCESSING', 'PACKED'] }, ...branchFilter } }),
   ])
 
   const metrics = [
     ['Today orders', String(todayOrders)],
     ['Revenue', `₹${Number(revenue._sum.grandTotal ?? 0).toLocaleString('en-IN')}`],
-    ['Low stock', String(lowStock)],
+    ['Low stock', String(Number(lowStockRows[0]?.count ?? 0))],
     ['Pending dispatch', String(pendingDispatch)],
   ]
 
