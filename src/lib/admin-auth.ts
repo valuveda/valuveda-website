@@ -15,14 +15,25 @@ export async function requireStaff(request: NextRequest, permission?: Permission
       name: true,
       branchId: true,
       status: true,
-      roles: { select: { role: { select: { name: true } } } },
+      roles: {
+        select: {
+          role: {
+            select: {
+              name: true,
+              permissions: { select: { permission: { select: { code: true } } } },
+            },
+          },
+        },
+      },
     },
   })
   if (!staff || staff.status !== 'ACTIVE') throw new Error('Staff authentication required')
 
   const roles = staff.roles.map((entry) => entry.role.name)
-  if (permission && !roles.some((role) => hasPermission(role as Parameters<typeof hasPermission>[0], permission))) {
-    throw new Error('Permission denied')
+  const dbPermissions = new Set(staff.roles.flatMap((entry) => entry.role.permissions.map((item) => item.permission.code)))
+  if (permission) {
+    const allowed = dbPermissions.has(permission) || roles.some((role) => hasPermission(role as Parameters<typeof hasPermission>[0], permission))
+    if (!allowed) throw new Error('Permission denied')
   }
 
   return { ...staff, roles }
