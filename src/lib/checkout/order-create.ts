@@ -65,8 +65,6 @@ export async function createCheckoutOrder(input: CreateOrderInput) {
   const orderNumber = createOrderNumber()
 
   const order = await db.$transaction(async (tx) => {
-    // Coupon validation and redemption happen in the same transaction. The
-    // coupon row is locked by validateCoupon before usage counts are checked.
     let coupon: Awaited<ReturnType<typeof validateCoupon>> | null = null
     if (input.couponCode) {
       coupon = await validateCoupon({
@@ -156,12 +154,20 @@ export async function createCheckoutOrder(input: CreateOrderInput) {
       })
     }
 
-    await reserveInventory(
+    const fulfillmentBranchId = await reserveInventory(
       tx,
       [...quantities].map(([variantId, quantity]) => ({ variantId, quantity })),
       created.id,
     )
-    return created
+    if (!fulfillmentBranchId) throw new Error('Fulfillment branch could not be determined')
+
+    await tx.$executeRaw`
+      UPDATE orders
+      SET fulfillment_branch_id = ${fulfillmentBranchId}::uuid
+      WHERE id = ${created.id}::uuid
+    `
+
+    return { ...created, fulfillmentBranchId }
   })
 
   return { ...order, grandTotal: Number(order.grandTotal) }
