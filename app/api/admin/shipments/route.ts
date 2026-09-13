@@ -28,7 +28,20 @@ export async function PATCH(request: NextRequest) {
         select: { id: true, items: { select: { variant: { select: { inventory: { select: { branchId: true } } } } } }, shipments: { orderBy: { createdAt: 'desc' }, take: 1, select: { id: true, status: true } } },
       })
       if (!order) throw new Error('Order not found')
-      if (branchId && !order.items.some((item) => item.variant.inventory.some((inventory) => inventory.branchId === branchId))) throw new Error('Branch access denied')
+
+      const fulfillmentRows = await tx.$queryRaw<Array<{ fulfillment_branch_id: string | null }>>`
+        SELECT fulfillment_branch_id::text AS fulfillment_branch_id
+        FROM orders
+        WHERE id = ${order.id}::uuid
+        LIMIT 1
+      `
+      const fulfillmentBranchId = fulfillmentRows[0]?.fulfillment_branch_id ?? null
+      if (branchId && fulfillmentBranchId
+        ? fulfillmentBranchId !== branchId
+        : branchId && !order.items.some((item) => item.variant.inventory.some((inventory) => inventory.branchId === branchId))) {
+        throw new Error('Branch access denied')
+      }
+
       const shipment = order.shipments[0]
       if (!shipment) throw new Error('Shipment not created')
       if (shipment.status !== nextStatus && !transitions[shipment.status].includes(nextStatus)) throw new Error(`Invalid shipment status transition: ${shipment.status} -> ${nextStatus}`)
