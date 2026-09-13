@@ -24,7 +24,20 @@ export async function PATCH(request: NextRequest) {
         select: { id: true, orderNumber: true, status: true, items: { select: { variant: { select: { inventory: { select: { branchId: true } } } } } } },
       })
       if (!order) throw new Error('Order not found')
-      if (branchId && !order.items.some((item) => item.variant.inventory.some((inventory) => inventory.branchId === branchId))) throw new Error('Branch access denied')
+
+      const fulfillmentRows = await tx.$queryRaw<Array<{ fulfillment_branch_id: string | null }>>`
+        SELECT fulfillment_branch_id::text AS fulfillment_branch_id
+        FROM orders
+        WHERE id = ${order.id}::uuid
+        LIMIT 1
+      `
+      const fulfillmentBranchId = fulfillmentRows[0]?.fulfillment_branch_id ?? null
+      if (branchId && fulfillmentBranchId
+        ? fulfillmentBranchId !== branchId
+        : branchId && !order.items.some((item) => item.variant.inventory.some((inventory) => inventory.branchId === branchId))) {
+        throw new Error('Branch access denied')
+      }
+
       if (order.status === nextStatus) return { order, changed: false }
       if (!canTransitionOrderStatus(order.status, nextStatus)) throw new Error(`Invalid order status transition: ${order.status} -> ${nextStatus}`)
 
@@ -43,7 +56,7 @@ export async function PATCH(request: NextRequest) {
           action: 'ORDER_STATUS_UPDATED',
           entityType: 'ORDER',
           entityId: order.id,
-          metadata: { orderNumber, from: order.status, to: nextStatus },
+          metadata: { orderNumber, from: order.status, to: nextStatus, fulfillmentBranchId },
           ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip'),
           userAgent: request.headers.get('user-agent'),
         },
