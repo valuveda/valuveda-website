@@ -24,9 +24,10 @@ export async function POST(request: NextRequest) {
     const branchId = scopedBranchId(staff, typeof body.branchId === 'string' ? body.branchId : null)
 
     if (branchId) {
-      const fulfillmentRows = await db.$queryRaw<Array<{ fulfillment_branch_id: string | null }>>\`
-        SELECT fulfillment_branch_id::text AS fulfillment_branch_id FROM orders WHERE id = ${order.id}::uuid LIMIT 1
-      \`
+      const fulfillmentRows = await db.$queryRawUnsafe<Array<{ fulfillment_branch_id: string | null }>>(
+        'SELECT fulfillment_branch_id::text AS fulfillment_branch_id FROM orders WHERE id = $1::uuid LIMIT 1',
+        order.id,
+      )
       const fulfillmentBranchId = fulfillmentRows[0]?.fulfillment_branch_id ?? null
       if (fulfillmentBranchId && fulfillmentBranchId !== branchId) return NextResponse.json({ error: 'Branch access denied' }, { status: 403 })
     }
